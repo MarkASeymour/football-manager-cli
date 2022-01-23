@@ -8,8 +8,7 @@ import (
 
 func main() {
 
-	url := "https://api-football-v1.p.rapidapi.com/v3/teams?name=West%20Ham%20United&season=2021"
-
+	url := "https://api-football-v1.p.rapidapi.com/v3/players/squads?team=48"
 	req, _ := http.NewRequest("GET", url, nil)
 
 	req.Header.Add("x-rapidapi-host", "api-football-v1.p.rapidapi.com")
