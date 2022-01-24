@@ -12,13 +12,13 @@ type Parameters struct {
 	Team string `json:team`
 }
 
-type Errors struct {
+type Errors []struct {
 	ErrorArr []string `json:errors`
 }
 
 type Paging struct {
-	Current string `json:current`
-	Total   string `json:total`
+	Current int `json:current`
+	Total   int `json:total`
 }
 
 type Response []struct {

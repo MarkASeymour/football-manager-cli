@@ -1,9 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/markaseymour/football-manager-cli/model"
 )
 
 func main() {
@@ -19,10 +22,18 @@ func main() {
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 
-	fmt.Println(res)
+	var squadJSON model.SquadJSON
 
-	fmt.Println("\n******************************************")
+	err := json.Unmarshal(body, &squadJSON)
+	if err != nil {
+		fmt.Println("error unmarshalling JSON body: ", err)
+	}
+	fmt.Println(squadJSON.Response)
 
-	fmt.Println(string(body))
+	// fmt.Println(res)
+
+	// fmt.Println("\n******************************************")
+
+	// fmt.Println(string(body))
 
 }
