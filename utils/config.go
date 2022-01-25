@@ -20,6 +20,10 @@ func LoadConfig() AppConfig {
 		os.Exit(1)
 	}
 	ac := AppConfig{FootballApiKey: viper.GetString("apiFootball.apiKey")}
+	if (viper.GetString("apiFootball.apiKey")) == "" {
+		log.Fatal("Please add a key to appconfig")
+		os.Exit(1)
+	}
 	return ac
 
 }
