@@ -7,15 +7,19 @@ import (
 	"net/http"
 
 	"github.com/markaseymour/football-manager-cli/model"
+	"github.com/markaseymour/football-manager-cli/utils"
 )
 
 func RunSquad(teamID string) model.SquadJSON {
+
+	config := utils.LoadConfig()
+
 	url := fmt.Sprintf("https://api-football-v1.p.rapidapi.com/v3/players/squads?team=%s", teamID)
 
 	req, _ := http.NewRequest("GET", url, nil)
 
 	req.Header.Add("x-rapidapi-host", "api-football-v1.p.rapidapi.com")
-	req.Header.Add("x-rapidapi-key", "934abd1d41msh4b4711d7d89a5d8p147930jsnea416e3c7d4a")
+	req.Header.Add("x-rapidapi-key", config.FootballApiKey)
 
 	res, _ := http.DefaultClient.Do(req)
 
