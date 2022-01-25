@@ -19,8 +19,8 @@ func main() {
 
 	res, _ := http.DefaultClient.Do(req)
 
-	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
+	defer res.Body.Close()
 
 	var squadJSON model.SquadJSON
 
@@ -35,6 +35,8 @@ func main() {
 	// details := response[0]
 	// teams := details.Teams
 	// team := teams[0]
+	// fmt.Println(string(body))
+
 	fmt.Printf("%+v\n", responseArray)
 
 	// fmt.Println(res)
