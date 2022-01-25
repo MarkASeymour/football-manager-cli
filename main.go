@@ -1,48 +1,36 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 
-	"github.com/markaseymour/football-manager-cli/model"
+	"github.com/markaseymour/football-manager-cli/services"
 )
 
 func main() {
+	var teamID string = "48"
+	squadJSON := services.RunSquad(teamID)
 
-	url := "https://api-football-v1.p.rapidapi.com/v3/players/squads?team=38"
-	req, _ := http.NewRequest("GET", url, nil)
+	response := squadJSON.Response
 
-	req.Header.Add("x-rapidapi-host", "api-football-v1.p.rapidapi.com")
-	req.Header.Add("x-rapidapi-key", "934abd1d41msh4b4711d7d89a5d8p147930jsnea416e3c7d4a")
+	teamAndSquad := response[0]
 
-	res, _ := http.DefaultClient.Do(req)
+	teamName := teamAndSquad.Team.Name
+	squad := teamAndSquad.Players
 
-	body, _ := ioutil.ReadAll(res.Body)
-	defer res.Body.Close()
+	fmt.Println(teamName)
+	fmt.Println("\n ")
+	fmt.Println("CURRENT ROSTER:")
 
-	var squadJSON model.SquadJSON
+	for _, v := range squad {
+		fmt.Println("\n**************")
 
-	err := json.Unmarshal(body, &squadJSON)
-	if err != nil {
-		fmt.Println("error unmarshalling JSON body: ", err)
+		fmt.Printf("Name: %s\n", v.Name)
+		fmt.Printf("Age: %v\n", v.Age)
+		fmt.Printf("Number: %v\n", v.Number)
+		fmt.Printf("Position: %s\n", v.Position)
+
+		fmt.Println("\n**************")
+
 	}
-
-	responseArray := squadJSON
-	// fmt.Println(responseArray)
-	// response := responseArray.Response
-	// details := response[0]
-	// teams := details.Teams
-	// team := teams[0]
-	// fmt.Println(string(body))
-
-	fmt.Printf("%+v\n", responseArray)
-
-	// fmt.Println(res)
-
-	// fmt.Println("\n******************************************")
-
-	// fmt.Println(string(body))
 
 }
