@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	url := "https://api-football-v1.p.rapidapi.com/v3/players/squads?team=48"
+	url := "https://api-football-v1.p.rapidapi.com/v3/players/squads?team=38"
 	req, _ := http.NewRequest("GET", url, nil)
 
 	req.Header.Add("x-rapidapi-host", "api-football-v1.p.rapidapi.com")
@@ -28,7 +28,14 @@ func main() {
 	if err != nil {
 		fmt.Println("error unmarshalling JSON body: ", err)
 	}
-	fmt.Println(squadJSON.Response)
+
+	responseArray := squadJSON
+	// fmt.Println(responseArray)
+	// response := responseArray.Response
+	// details := response[0]
+	// teams := details.Teams
+	// team := teams[0]
+	fmt.Printf("%+v\n", responseArray)
 
 	// fmt.Println(res)
 
