@@ -7,15 +7,10 @@ import (
 )
 
 func main() {
-	leagueJSON := services.RunLeague()
+	countryJSON := services.GetLeagueForCountry("gb")
 
-	for _, v := range leagueJSON.Response {
-		if v.Country.Name == "England" {
-			if v.League.Name == "Premier League" {
-				fmt.Println(v)
-			}
-
-		}
+	for _, v := range countryJSON.Response {
+		fmt.Println(v.League.Name)
 
 	}
 }
