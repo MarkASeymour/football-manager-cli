@@ -2,8 +2,8 @@ package model
 
 type LeagueJSON struct {
 	Get        string `json:"get"`
-	Parameters []string
-	Errors     []string
+	Parameters struct{}
+	Errors     struct{}
 	Results    int `json:"results"`
 	Paging     struct {
 		Current int `json:"current"`

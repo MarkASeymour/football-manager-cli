@@ -10,11 +10,11 @@ import (
 	"github.com/markaseymour/football-manager-cli/utils"
 )
 
-func RunLeague() model.LeagueJSON {
+func GetLeagueInfo(leagueCode string) ([]string, map[string]int) {
 
 	config := utils.LoadConfig()
 
-	url := "https://api-football-v1.p.rapidapi.com/v3/leagues"
+	url := fmt.Sprintf("https://api-football-v1.p.rapidapi.com/v3/leagues?id=%s", leagueCode)
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -34,12 +34,20 @@ func RunLeague() model.LeagueJSON {
 	if err != nil {
 		fmt.Println("error unmarshalling JSON body: ", err)
 	}
+	var teamsList []string
+	var teamsMap map[string]int
 
-	return leagueJSON
+	for _, v := range leagueJSON.Response {
+		teamsList = append(teamsList, v.League.Name)
+		teamsMap[v.League.Name] = v.League.ID
+
+	}
+
+	return teamsList, teamsMap
 
 }
 
-func GetLeagueForCountry(countryCode string) model.CountryJSON {
+func GetLeagueForCountry(countryCode string) ([]string, model.CountryJSON) {
 
 	config := utils.LoadConfig()
 
@@ -63,7 +71,10 @@ func GetLeagueForCountry(countryCode string) model.CountryJSON {
 	if err != nil {
 		fmt.Println("error unmarshalling JSON body: ", err)
 	}
-
-	return countryJSON
+	var leaguesNameList []string
+	for _, v := range countryJSON.Response {
+		leaguesNameList = append(leaguesNameList, v.League.Name)
+	}
+	return leaguesNameList, countryJSON
 
 }
