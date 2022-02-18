@@ -10,7 +10,7 @@ import (
 	"github.com/markaseymour/football-manager-cli/utils"
 )
 
-func RunSquad(teamID string) model.SquadJSON {
+func GetSquad(teamID string) model.SquadJSON {
 
 	config := utils.LoadConfig()
 

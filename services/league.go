@@ -10,44 +10,44 @@ import (
 	"github.com/markaseymour/football-manager-cli/utils"
 )
 
-func GetLeagueInfo(leagueCode string) ([]string, map[string]int) {
+// func GetLeagueInfo(leagueCode string) ([]string, map[string]int) {
 
-	config := utils.LoadConfig()
+// 	config := utils.LoadConfig()
 
-	url := fmt.Sprintf("https://api-football-v1.p.rapidapi.com/v3/leagues?id=%s", leagueCode)
+// 	url := fmt.Sprintf("https://api-football-v1.p.rapidapi.com/v3/leagues?id=%s", leagueCode)
 
-	req, _ := http.NewRequest("GET", url, nil)
+// 	req, _ := http.NewRequest("GET", url, nil)
 
-	req.Header.Add("x-rapidapi-host", "api-football-v1.p.rapidapi.com")
-	req.Header.Add("x-rapidapi-key", config.FootballApiKey)
+// 	req.Header.Add("x-rapidapi-host", "api-football-v1.p.rapidapi.com")
+// 	req.Header.Add("x-rapidapi-key", config.FootballApiKey)
 
-	res, err1 := http.DefaultClient.Do(req)
-	if err1 != nil {
-		fmt.Println("Error retrieving api league data")
-	}
+// 	res, err1 := http.DefaultClient.Do(req)
+// 	if err1 != nil {
+// 		fmt.Println("Error retrieving api league data")
+// 	}
 
-	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
-	var leagueJSON model.LeagueJSON
+// 	defer res.Body.Close()
+// 	body, _ := ioutil.ReadAll(res.Body)
+// 	var leagueJSON model.LeagueJSON
 
-	err := json.Unmarshal(body, &leagueJSON)
-	if err != nil {
-		fmt.Println("error unmarshalling JSON body: ", err)
-	}
-	var teamsList []string
-	var teamsMap map[string]int
+// 	err := json.Unmarshal(body, &leagueJSON)
+// 	if err != nil {
+// 		fmt.Println("error unmarshalling JSON body: ", err)
+// 	}
+// 	var teamsList []string
+// 	var teamsMap = make(map[string]int)
 
-	for _, v := range leagueJSON.Response {
-		teamsList = append(teamsList, v.League.Name)
-		teamsMap[v.League.Name] = v.League.ID
+// 	for _, v := range leagueJSON.Response {
+// 		teamsList = append(teamsList, v.League.Name)
+// 		teamsMap[v.League.Name] = v.League.ID
 
-	}
+// }
 
-	return teamsList, teamsMap
+// 	return teamsList, teamsMap
 
-}
+// }
 
-func GetLeagueForCountry(countryCode string) ([]string, model.CountryJSON) {
+func GetLeagueForCountry(countryCode string) ([]string, model.CountryJSON, map[string]int) {
 
 	config := utils.LoadConfig()
 
@@ -72,9 +72,42 @@ func GetLeagueForCountry(countryCode string) ([]string, model.CountryJSON) {
 		fmt.Println("error unmarshalling JSON body: ", err)
 	}
 	var leaguesNameList []string
+	var leagueMap = make(map[string]int)
 	for _, v := range countryJSON.Response {
 		leaguesNameList = append(leaguesNameList, v.League.Name)
+		leagueMap[v.League.Name] = v.League.ID
 	}
-	return leaguesNameList, countryJSON
+	return leaguesNameList, countryJSON, leagueMap
 
+}
+
+func GetTeamsByLeagueId(leagueId int) ([]string, model.TeamsByLeagueJSON, map[string]int) {
+
+	url := fmt.Sprintf("https://api-football-v1.p.rapidapi.com/v3/teams?league=%d&season=2021", leagueId)
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("x-rapidapi-host", "api-football-v1.p.rapidapi.com")
+	req.Header.Add("x-rapidapi-key", "934abd1d41msh4b4711d7d89a5d8p147930jsnea416e3c7d4a")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+
+	var teamsByLeagueJSON model.TeamsByLeagueJSON
+
+	err := json.Unmarshal(body, &teamsByLeagueJSON)
+	if err != nil {
+		fmt.Println("error unmarshalling JSON body: ", err)
+	}
+
+	var teamNamesList []string
+	var teamsByLeagueMap = make(map[string]int)
+	for _, v := range teamsByLeagueJSON.Response {
+		teamNamesList = append(teamNamesList, v.Team.Name)
+		teamsByLeagueMap[v.Team.Name] = v.Team.Id
+	}
+
+	return teamNamesList, teamsByLeagueJSON, teamsByLeagueMap
 }

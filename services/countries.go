@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sort"
 
 	"github.com/markaseymour/football-manager-cli/model"
 )
@@ -21,7 +22,7 @@ func GetCountriesMap() map[string]string {
 	res, _ := http.DefaultClient.Do(req)
 
 	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)zz
+	body, _ := ioutil.ReadAll(res.Body)
 
 	var countriesJSON model.CountriesJSON
 
@@ -42,5 +43,6 @@ func GetNamesFromMap(countries map[string]string) []string {
 	for k := range countries {
 		namesList = append(namesList, k)
 	}
+	sort.Strings(namesList)
 	return namesList
 }

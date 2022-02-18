@@ -3,7 +3,7 @@ package model
 type LeagueJSON struct {
 	Get        string `json:"get"`
 	Parameters struct{}
-	Errors     struct{}
+	Errors     []string
 	Results    int `json:"results"`
 	Paging     struct {
 		Current int `json:"current"`
@@ -18,8 +18,8 @@ type LeagueJSON struct {
 		}
 		Country struct {
 			Name string `json:"name"`
-			Code int    `json:"code"`
-			Flag int    `json:"flag"`
+			Code string `json:"code"`
+			Flag string `json:"flag"`
 		}
 		Seasons []struct {
 			Year     int    `json:"year"`

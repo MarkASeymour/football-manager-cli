@@ -29,18 +29,25 @@ func main() {
 	nameChoice := countriesNames[choice]
 	choiceCode := countriesMap[nameChoice]
 
-	leaguesForCountryList, _ := services.GetLeagueForCountry(choiceCode)
+	leaguesForCountryList, _, leagueMap := services.GetLeagueForCountry(choiceCode)
 	printOptions(leaguesForCountryList)
 	leagueChoice, _ := scanner.ReadString('\n')
-	leagueChoice = strings.TrimSuffix(leagueChoice, "\n")
-	leagueIndexPre, err := strconv.ParseInt(leagueChoice, 0, 64)
-	if err != nil {
-		fmt.Println(err)
-	}
-	leagueIndex := leagueIndexPre - 1
-	leagueIndexString := fmt.Sprintf("%i", leagueIndex)
+	leagueChoiceString := strings.TrimSuffix(leagueChoice, "\n")
+	leagueChoiceNumber, err := strconv.ParseInt(leagueChoiceString, 0, 64)
+	leagueChoiceIndex := leagueChoiceNumber - 1
+	leagueChoiceName := leaguesForCountryList[leagueChoiceIndex]
 
-	// teamsList, _ := services.GetLeagueInfo(leagueCode)
+	var leagueCode = leagueMap[leagueChoiceName]
+	// fmt.Printf("league code is: %s", leagueCode)
+	// leagueIndexPre, err := strconv.ParseInt(leagueChoice, 0, 64)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// leagueIndex := leagueIndexPre - 1
+	// leagueIndexString := fmt.Sprintf("%i", leagueIndex)
+
+	teamsList, _, _ := services.GetTeamsByLeagueId(leagueCode)
+	// fmt.Printf("length of league list of teams is: %d", len(teamsList))
 	printOptions(teamsList)
 
 }
