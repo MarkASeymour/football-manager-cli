@@ -47,7 +47,7 @@ import (
 
 // }
 
-func GetLeagueForCountry(countryCode string) ([]string, model.CountryJSON, map[string]int) {
+func GetLeagueForCountry(countryCode string) ([]string, model.CountryJSON, map[string]string) {
 
 	config := utils.LoadConfig()
 
@@ -72,10 +72,11 @@ func GetLeagueForCountry(countryCode string) ([]string, model.CountryJSON, map[s
 		fmt.Println("error unmarshalling JSON body: ", err)
 	}
 	var leaguesNameList []string
-	var leagueMap = make(map[string]int)
+	var leagueMap = make(map[string]string)
 	for _, v := range countryJSON.Response {
 		leaguesNameList = append(leaguesNameList, v.League.Name)
-		leagueMap[v.League.Name] = v.League.ID
+		idString := fmt.Sprintf("%d", v.League.ID)
+		leagueMap[v.League.Name] = idString
 	}
 	return leaguesNameList, countryJSON, leagueMap
 

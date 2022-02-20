@@ -1,60 +1,151 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/logrusorgru/aurora"
 
 	"github.com/markaseymour/football-manager-cli/services"
 )
 
 func main() {
 
-	scanner := bufio.NewReader(os.Stdin)
-
-	fmt.Println("Select a country: ")
-	countriesMap := services.GetCountriesMap()
-	countriesNames := services.GetNamesFromMap(countriesMap)
-	printOptions(countriesNames)
-
-	text, _ := scanner.ReadString('\n')
-	text = strings.TrimSuffix(text, "\n")
-	choice, err := strconv.ParseInt(text, 0, 64)
-	if err != nil {
-		fmt.Printf("Error parsing int: %s", err)
+	p := tea.NewProgram(initialModel())
+	if err := p.Start(); err != nil {
+		fmt.Printf("Error: %v", err)
+		os.Exit(1)
 	}
-	choice = choice - 1
-	nameChoice := countriesNames[choice]
-	choiceCode := countriesMap[nameChoice]
+}
 
-	leaguesForCountryList, _, leagueMap := services.GetLeagueForCountry(choiceCode)
-	printOptions(leaguesForCountryList)
-	leagueChoice, _ := scanner.ReadString('\n')
-	leagueChoiceString := strings.TrimSuffix(leagueChoice, "\n")
-	leagueChoiceNumber, err := strconv.ParseInt(leagueChoiceString, 0, 64)
-	leagueChoiceIndex := leagueChoiceNumber - 1
-	leagueChoiceName := leaguesForCountryList[leagueChoiceIndex]
+type model struct {
+	choices             []string
+	cursor              int
+	page                int
+	countryNamesCodeMap map[string]string
+	allChoices          []string
+	allChunks           [][]string
+	currentChunk        int
+}
 
-	var leagueCode = leagueMap[leagueChoiceName]
-	// fmt.Printf("league code is: %s", leagueCode)
-	// leagueIndexPre, err := strconv.ParseInt(leagueChoice, 0, 64)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// leagueIndex := leagueIndexPre - 1
-	// leagueIndexString := fmt.Sprintf("%i", leagueIndex)
+func initialModel() model {
+	countryNames, namesMap := services.GetCountriesMap()
+	initialChunks := chunkSlice(countryNames, 8)
+	return model{
+		page:                0,
+		countryNamesCodeMap: namesMap,
+		currentChunk:        0,
+		allChoices:          countryNames,
+		allChunks:           initialChunks,
+		choices:             initialChunks[0],
+	}
+}
+func newPageModel(newList []string, newMap map[string]string, newPageNum int) model {
 
-	teamsList, _, _ := services.GetTeamsByLeagueId(leagueCode)
-	// fmt.Printf("length of league list of teams is: %d", len(teamsList))
-	printOptions(teamsList)
+	allChunksNew := chunkSlice(newList, 8)
+	return model{
+		page:                newPageNum,
+		countryNamesCodeMap: newMap,
+		currentChunk:        0,
+		allChoices:          newList,
+		allChunks:           allChunksNew,
+		choices:             allChunksNew[0],
+	}
 
 }
 
-func printOptions(countries []string) {
-	for i, v := range countries {
-		country := fmt.Sprintf("%d %s", i+1, v)
-		fmt.Println(country)
+func (m model) Init() tea.Cmd {
+	return nil
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	selection := m.choices[m.cursor]
+
+	switch msg := msg.(type) {
+
+	case tea.KeyMsg:
+
+		switch msg.String() {
+
+		case "ctrl+c", "q":
+			return m, tea.Quit
+
+		case "up", "k":
+			if m.cursor > 0 {
+				m.cursor--
+			}
+			if m.cursor == 0 {
+				if m.currentChunk > 0 {
+					m.currentChunk = m.currentChunk - 1
+					m.choices = m.allChunks[m.currentChunk]
+				}
+
+			}
+
+		case "down", "j":
+			if m.cursor < len(m.choices)-1 {
+				m.cursor++
+			}
+
+			if m.cursor == len(m.choices)-1 {
+				if m.currentChunk != len(m.allChunks)-1 {
+					m.currentChunk = m.currentChunk + 1
+					m.choices = m.allChunks[m.currentChunk]
+				}
+
+			}
+
+		case "enter", " ":
+			if m.page == 0 {
+				namesList, _, newMap := services.GetLeagueForCountry(m.countryNamesCodeMap[selection])
+				return newPageModel(namesList, newMap, 1), nil
+			}
+
+		}
 	}
+
+	return m, nil
+}
+
+func (m model) View() string {
+	s := "Select from below: \n\n"
+
+	for i, choice := range m.choices {
+
+		cursor := " "
+		if m.cursor == i {
+			cursor = ">"
+		}
+
+		// checked := " "
+		// if _, ok := m.selected[i]; ok {
+		// 	checked = "x"
+		// }
+		choiceColor := aurora.Blue(choice)
+		if cursor == " " {
+			s += fmt.Sprintf("%s  %s\n", cursor, choice)
+		} else {
+			s += fmt.Sprintf("%s  %s\n", cursor, choiceColor)
+		}
+
+	}
+	s += "\nPress q to quit.\n"
+
+	return s
+}
+
+func chunkSlice(slice []string, chunkSize int) [][]string {
+	var chunks [][]string
+	for i := 0; i < len(slice); i += chunkSize {
+		end := i + chunkSize
+
+		if end > len(slice) {
+			end = len(slice)
+		}
+
+		chunks = append(chunks, slice[i:end])
+	}
+
+	return chunks
 }

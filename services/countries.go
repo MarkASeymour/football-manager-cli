@@ -10,7 +10,7 @@ import (
 	"github.com/markaseymour/football-manager-cli/model"
 )
 
-func GetCountriesMap() map[string]string {
+func GetCountriesMap() ([]string, map[string]string) {
 
 	url := "https://api-football-v1.p.rapidapi.com/v3/countries"
 
@@ -31,10 +31,13 @@ func GetCountriesMap() map[string]string {
 		fmt.Println("Error unmarshalling countriesJSON %s", err)
 	}
 	countriesMap := make(map[string]string)
+	var namesList []string
 	for _, v := range countriesJSON.Response {
+
 		countriesMap[v.Name] = v.Code
+		namesList = append(namesList, v.Name)
 	}
-	return countriesMap
+	return namesList, countriesMap
 
 }
 
