@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/markaseymour/football-manager-cli/model"
 	"github.com/markaseymour/football-manager-cli/utils"
@@ -82,9 +83,9 @@ func GetLeagueForCountry(countryCode string) ([]string, model.CountryJSON, map[s
 
 }
 
-func GetTeamsByLeagueId(leagueId int) ([]string, model.TeamsByLeagueJSON, map[string]int) {
+func GetTeamsByLeagueId(leagueId string) ([]string, model.TeamsByLeagueJSON, map[string]string) {
 
-	url := fmt.Sprintf("https://api-football-v1.p.rapidapi.com/v3/teams?league=%d&season=2021", leagueId)
+	url := fmt.Sprintf("https://api-football-v1.p.rapidapi.com/v3/teams?league=%s&season=2021", leagueId)
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -104,10 +105,10 @@ func GetTeamsByLeagueId(leagueId int) ([]string, model.TeamsByLeagueJSON, map[st
 	}
 
 	var teamNamesList []string
-	var teamsByLeagueMap = make(map[string]int)
+	var teamsByLeagueMap = make(map[string]string)
 	for _, v := range teamsByLeagueJSON.Response {
 		teamNamesList = append(teamNamesList, v.Team.Name)
-		teamsByLeagueMap[v.Team.Name] = v.Team.Id
+		teamsByLeagueMap[v.Team.Name] = strconv.Itoa(v.Team.Id)
 	}
 
 	return teamNamesList, teamsByLeagueJSON, teamsByLeagueMap

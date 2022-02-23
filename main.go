@@ -17,40 +17,41 @@ func main() {
 		fmt.Printf("Error: %v", err)
 		os.Exit(1)
 	}
+
 }
 
 type model struct {
-	choices             []string
-	cursor              int
-	page                int
-	countryNamesCodeMap map[string]string
-	allChoices          []string
-	allChunks           [][]string
-	currentChunk        int
+	choices      []string
+	cursor       int
+	page         int
+	namesCodeMap map[string]string
+	allChoices   []string
+	allChunks    [][]string
+	currentChunk int
 }
 
 func initialModel() model {
 	countryNames, namesMap := services.GetCountriesMap()
 	initialChunks := chunkSlice(countryNames, 8)
 	return model{
-		page:                0,
-		countryNamesCodeMap: namesMap,
-		currentChunk:        0,
-		allChoices:          countryNames,
-		allChunks:           initialChunks,
-		choices:             initialChunks[0],
+		page:         0,
+		namesCodeMap: namesMap,
+		currentChunk: 0,
+		allChoices:   countryNames,
+		allChunks:    initialChunks,
+		choices:      initialChunks[0],
 	}
 }
 func newPageModel(newList []string, newMap map[string]string, newPageNum int) model {
 
 	allChunksNew := chunkSlice(newList, 8)
 	return model{
-		page:                newPageNum,
-		countryNamesCodeMap: newMap,
-		currentChunk:        0,
-		allChoices:          newList,
-		allChunks:           allChunksNew,
-		choices:             allChunksNew[0],
+		page:         newPageNum,
+		namesCodeMap: newMap,
+		currentChunk: 0,
+		allChoices:   newList,
+		allChunks:    allChunksNew,
+		choices:      allChunksNew[0],
 	}
 
 }
@@ -84,22 +85,32 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case "down", "j":
-			if m.cursor < len(m.choices)-1 {
+
+			if m.cursor <= len(m.choices) {
 				m.cursor++
 			}
 
-			if m.cursor == len(m.choices)-1 {
-				if m.currentChunk != len(m.allChunks)-1 {
-					m.currentChunk = m.currentChunk + 1
-					m.choices = m.allChunks[m.currentChunk]
-				}
+			if m.cursor == len(m.choices) && m.currentChunk != len(m.allChunks)-1 {
+
+				m.currentChunk = m.currentChunk + 1
+				m.choices = m.allChunks[m.currentChunk]
+				m.cursor = 0
 
 			}
 
 		case "enter", " ":
+
 			if m.page == 0 {
-				namesList, _, newMap := services.GetLeagueForCountry(m.countryNamesCodeMap[selection])
+				namesList, _, newMap := services.GetLeagueForCountry(m.namesCodeMap[selection])
 				return newPageModel(namesList, newMap, 1), nil
+			}
+			if m.page == 1 {
+				namesList, _, newMap := services.GetTeamsByLeagueId(m.namesCodeMap[selection])
+				return newPageModel(namesList, newMap, 2), nil
+			}
+			if m.page == 2 {
+				namesList, _, newMap := services.GetSquad(m.namesCodeMap[selection])
+				return newPageModel(namesList, newMap, 3), nil
 			}
 
 		}
@@ -118,15 +129,11 @@ func (m model) View() string {
 			cursor = ">"
 		}
 
-		// checked := " "
-		// if _, ok := m.selected[i]; ok {
-		// 	checked = "x"
-		// }
 		choiceColor := aurora.Blue(choice)
 		if cursor == " " {
-			s += fmt.Sprintf("%s  %s\n", cursor, choice)
+			s += fmt.Sprintf("%s  %s\n", aurora.Blue(cursor), choice)
 		} else {
-			s += fmt.Sprintf("%s  %s\n", cursor, choiceColor)
+			s += fmt.Sprintf("%s  %s\n", aurora.Blue(cursor), choiceColor)
 		}
 
 	}
