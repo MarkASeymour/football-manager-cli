@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/markaseymour/football-manager-cli/model"
 	"github.com/markaseymour/football-manager-cli/utils"
 )
 
-func RunSquad(teamID string) model.SquadJSON {
+func GetSquad(teamID string) ([]string, model.SquadJSON, map[string]string) {
 
 	config := utils.LoadConfig()
 
@@ -28,10 +29,22 @@ func RunSquad(teamID string) model.SquadJSON {
 
 	var squadJSON model.SquadJSON
 
-	err := json.Unmarshal(body, &squadJSON)
-	if err != nil {
-		fmt.Println("error unmarshalling JSON body: ", err)
+	err3 := json.Unmarshal(body, &squadJSON)
+	if err3 != nil {
+		fmt.Println("error unmarshalling JSON body: ", err3)
 	}
 
-	return squadJSON
+	var namesList []string
+	var namesCodeMap = make(map[string]string)
+
+	for _, v := range squadJSON.Response {
+		for _, t := range v.Players {
+
+			namesList = append(namesList, t.Name)
+			stringID := strconv.Itoa(t.Id)
+			namesCodeMap[t.Name] = stringID
+		}
+	}
+
+	return namesList, squadJSON, namesCodeMap
 }
