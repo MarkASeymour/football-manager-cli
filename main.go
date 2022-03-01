@@ -86,7 +86,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "down", "j":
 
-			if m.cursor <= len(m.choices) {
+			if m.cursor <= len(m.choices)-1 {
 				m.cursor++
 			}
 
@@ -129,11 +129,11 @@ func (m model) View() string {
 			cursor = ">"
 		}
 
-		choiceColor := aurora.Blue(choice)
+		choiceColor := aurora.Green(choice)
 		if cursor == " " {
-			s += fmt.Sprintf("%s  %s\n", aurora.Blue(cursor), choice)
+			s += fmt.Sprintf("%s  %s\n", aurora.Green(cursor), choice)
 		} else {
-			s += fmt.Sprintf("%s  %s\n", aurora.Blue(cursor), choiceColor)
+			s += fmt.Sprintf("%s  %s\n", aurora.Green(cursor), choiceColor)
 		}
 
 	}
