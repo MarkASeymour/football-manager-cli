@@ -90,12 +90,13 @@ func GetTeamsByLeagueId(leagueId string) ([]string, model.TeamsByLeagueJSON, map
 	req, _ := http.NewRequest("GET", url, nil)
 
 	req.Header.Add("x-rapidapi-host", "api-football-v1.p.rapidapi.com")
-	req.Header.Add("x-rapidapi-key", "934abd1d41msh4b4711d7d89a5d8p147930jsnea416e3c7d4a")
+	req.Header.Add("x-rapidapi-key", utils.LoadConfig().FootballApiKey)
 
 	res, _ := http.DefaultClient.Do(req)
 
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
+	fmt.Println(res)
 
 	var teamsByLeagueJSON model.TeamsByLeagueJSON
 
@@ -104,12 +105,14 @@ func GetTeamsByLeagueId(leagueId string) ([]string, model.TeamsByLeagueJSON, map
 		fmt.Println("error unmarshalling JSON body: ", err)
 	}
 
+	//for testing
+	fmt.Println(teamsByLeagueJSON)
+
 	var teamNamesList []string
 	var teamsByLeagueMap = make(map[string]string)
 	for _, v := range teamsByLeagueJSON.Response {
 		teamNamesList = append(teamNamesList, v.Team.Name)
 		teamsByLeagueMap[v.Team.Name] = strconv.Itoa(v.Team.Id)
 	}
-
 	return teamNamesList, teamsByLeagueJSON, teamsByLeagueMap
 }

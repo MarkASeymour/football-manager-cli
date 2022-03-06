@@ -5,7 +5,7 @@ type SquadJSON struct {
 	Parameters struct {
 		Team string `json:"team"`
 	} `json:"parameters"`
-	Errors  struct{} `json:"errors"`
+	Errors  []string `json:"errors"`
 	Results int      `json:"results"`
 	Paging  struct {
 		Current int `json:"current"`

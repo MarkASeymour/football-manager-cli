@@ -12,6 +12,9 @@ import (
 
 func main() {
 
+	// list,_:=services.GetCountriesMap()
+	// fmt.Println(list)
+
 	p := tea.NewProgram(initialModel())
 	if err := p.Start(); err != nil {
 		fmt.Printf("Error: %v", err)
@@ -33,6 +36,8 @@ type model struct {
 func initialModel() model {
 	countryNames, namesMap := services.GetCountriesMap()
 	initialChunks := chunkSlice(countryNames, 8)
+	fmt.Println(countryNames)
+
 	return model{
 		page:         0,
 		namesCodeMap: namesMap,
