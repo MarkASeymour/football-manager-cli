@@ -36,8 +36,6 @@ type model struct {
 func initialModel() model {
 	countryNames, namesMap := services.GetCountriesMap()
 	initialChunks := chunkSlice(countryNames, 8)
-	fmt.Println(countryNames)
-
 	return model{
 		page:         0,
 		namesCodeMap: namesMap,
