@@ -13,22 +13,8 @@ import (
 
 func GetLeagueForCountry(countryCode string) ([]string, model.CountryJSON, map[string]string) {
 
-	config := utils.LoadConfig()
-
 	url := fmt.Sprintf("https://api-football-v1.p.rapidapi.com/v3/leagues?code=%s", countryCode)
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	req.Header.Add("x-rapidapi-host", "api-football-v1.p.rapidapi.com")
-	req.Header.Add("x-rapidapi-key", config.FootballApiKey)
-
-	res, err1 := http.DefaultClient.Do(req)
-	if err1 != nil {
-		fmt.Println("Error retrieving api league data")
-	}
-
-	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
+	body := utils.MakeCall(url)
 	var countryJSON model.CountryJSON
 
 	err := json.Unmarshal(body, &countryJSON)

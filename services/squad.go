@@ -3,8 +3,6 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strconv"
 
 	"github.com/markaseymour/football-manager-cli/model"
@@ -13,19 +11,9 @@ import (
 
 func GetSquad(teamID string) ([]string, model.SquadJSON, map[string]string) {
 
-	config := utils.LoadConfig()
-
 	url := fmt.Sprintf("https://api-football-v1.p.rapidapi.com/v3/players/squads?team=%s", teamID)
 
-	req, _ := http.NewRequest("GET", url, nil)
-
-	req.Header.Add("x-rapidapi-host", "api-football-v1.p.rapidapi.com")
-	req.Header.Add("x-rapidapi-key", config.FootballApiKey)
-
-	res, _ := http.DefaultClient.Do(req)
-
-	body, _ := ioutil.ReadAll(res.Body)
-	defer res.Body.Close()
+	body := utils.MakeCall(url)
 
 	var squadJSON model.SquadJSON
 

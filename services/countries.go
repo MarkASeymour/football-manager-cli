@@ -3,8 +3,6 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"sort"
 
 	"github.com/markaseymour/football-manager-cli/model"
@@ -13,19 +11,9 @@ import (
 
 func GetCountriesMap() ([]string, map[string]string) {
 
-	config := utils.LoadConfig()
-
 	url := "https://api-football-v1.p.rapidapi.com/v3/countries"
 
-	req, _ := http.NewRequest("GET", url, nil)
-
-	req.Header.Add("x-rapidapi-host", "api-football-v1.p.rapidapi.com")
-	req.Header.Add("x-rapidapi-key", config.FootballApiKey)
-
-	res, _ := http.DefaultClient.Do(req)
-
-	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
+	body := utils.MakeCall(url)
 
 	var countriesJSON model.CountriesJSON
 
