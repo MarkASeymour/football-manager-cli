@@ -12,8 +12,8 @@ import (
 
 func main() {
 
-	// list,_:=services.GetCountriesMap()
-	// fmt.Println(list)
+	// json := services.GetPlayerStats("256")
+	// fmt.Println(json)
 
 	p := tea.NewProgram(initialModel())
 	if err := p.Start(); err != nil {
@@ -31,6 +31,7 @@ type model struct {
 	allChoices   []string
 	allChunks    [][]string
 	currentChunk int
+	isPlayerStat bool
 }
 
 func initialModel() model {
@@ -43,9 +44,10 @@ func initialModel() model {
 		allChoices:   countryNames,
 		allChunks:    initialChunks,
 		choices:      initialChunks[0],
+		isPlayerStat: false,
 	}
 }
-func newPageModel(newList []string, newMap map[string]string, newPageNum int) model {
+func newPageModel(newList []string, newMap map[string]string, newPageNum int, isPlayStat bool) model {
 
 	allChunksNew := chunkSlice(newList, 8)
 	return model{
@@ -55,6 +57,7 @@ func newPageModel(newList []string, newMap map[string]string, newPageNum int) mo
 		allChoices:   newList,
 		allChunks:    allChunksNew,
 		choices:      allChunksNew[0],
+		isPlayerStat: isPlayStat,
 	}
 
 }
@@ -105,15 +108,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			if m.page == 0 {
 				namesList, _, newMap := services.GetLeagueForCountry(m.namesCodeMap[selection])
-				return newPageModel(namesList, newMap, 1), nil
+				return newPageModel(namesList, newMap, 1, false), nil
 			}
 			if m.page == 1 {
 				namesList, _, newMap := services.GetTeamsByLeagueId(m.namesCodeMap[selection])
-				return newPageModel(namesList, newMap, 2), nil
+				return newPageModel(namesList, newMap, 2, false), nil
 			}
 			if m.page == 2 {
 				namesList, _, newMap := services.GetSquad(m.namesCodeMap[selection])
-				return newPageModel(namesList, newMap, 3), nil
+				return newPageModel(namesList, newMap, 3, false), nil
+			}
+			if m.page == 3 {
+				statList, _, statMap := services.GetPlayerStats(m.namesCodeMap[selection])
+				return newPageModel(statList, statMap, 4, true), nil
 			}
 
 		}
@@ -123,25 +130,34 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	s := "Select from below: \n\n"
-
-	for i, choice := range m.choices {
-
-		cursor := " "
-		if m.cursor == i {
-			cursor = ">"
+	var s string
+	if m.isPlayerStat {
+		s = "Player Stats:\n\n"
+		for _, v := range m.allChoices {
+			s += v
+			s += "\n"
 		}
 
-		choiceColor := aurora.Green(choice)
-		if cursor == " " {
-			s += fmt.Sprintf("%s  %s\n", aurora.Green(cursor), choice)
-		} else {
-			s += fmt.Sprintf("%s  %s\n", aurora.Green(cursor), choiceColor)
-		}
+	} else {
+		s = "Select from below: \n\n"
 
+		for i, choice := range m.choices {
+
+			cursor := " "
+			if m.cursor == i {
+				cursor = ">"
+			}
+
+			choiceColor := aurora.Green(choice)
+			if cursor == " " {
+				s += fmt.Sprintf("%s  %s\n", aurora.Green(cursor), choice)
+			} else {
+				s += fmt.Sprintf("%s  %s\n", aurora.Green(cursor), choiceColor)
+			}
+
+		}
+		s += "\nPress q to quit.\n"
 	}
-	s += "\nPress q to quit.\n"
-
 	return s
 }
 
