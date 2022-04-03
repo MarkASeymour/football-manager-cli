@@ -16,7 +16,7 @@ type SquadJSON struct {
 			ID   int    `json:"id"`
 			Name string `json:"name"`
 			Logo string `json:"logo"`
-		} `json:"team"`
+		} `json:"team"` 
 		Players []struct {
 			Id       int    `json:"id"`
 			Name     string `json:"name"`
