@@ -10,6 +10,8 @@ import (
 	"github.com/markaseymour/football-manager-cli/services"
 )
 
+var prevChoices map[int]string = make(map[int]string)
+
 func main() {
 
 	// json := services.GetPlayerStats("256")
@@ -32,6 +34,7 @@ type model struct {
 	allChunks    [][]string
 	currentChunk int
 	isPlayerStat bool
+	// prevChoices map[int]string
 }
 
 func initialModel() model {
@@ -107,20 +110,47 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", " ":
 
 			if m.page == 0 {
+				prevChoices[m.page] = m.namesCodeMap[selection]
 				namesList, _, newMap := services.GetLeagueForCountry(m.namesCodeMap[selection])
 				return newPageModel(namesList, newMap, 1, false), nil
 			}
 			if m.page == 1 {
+				prevChoices[m.page] = m.namesCodeMap[selection]
 				namesList, _, newMap := services.GetTeamsByLeagueId(m.namesCodeMap[selection])
 				return newPageModel(namesList, newMap, 2, false), nil
 			}
 			if m.page == 2 {
+				prevChoices[m.page] = m.namesCodeMap[selection]
 				namesList, _, newMap := services.GetSquad(m.namesCodeMap[selection])
 				return newPageModel(namesList, newMap, 3, false), nil
 			}
 			if m.page == 3 {
+				prevChoices[m.page] = m.namesCodeMap[selection]
 				statList, _, statMap := services.GetPlayerStats(m.namesCodeMap[selection])
+				if len(statList) == 0 {
+					statList = append(statList, "No stats for player")
+				}
 				return newPageModel(statList, statMap, 4, true), nil
+			}
+
+		case "b":
+			newPage := (m.page - 1)
+			lastChoice := prevChoices[newPage-1]
+
+			if newPage == 0 {
+				return initialModel(), nil
+			}
+			if newPage == 1 {
+				namesList, _, newMap := services.GetLeagueForCountry(lastChoice)
+				return newPageModel(namesList, newMap, 1, false), nil
+			}
+			if newPage == 2 {
+				namesList, _, newMap := services.GetTeamsByLeagueId(lastChoice)
+				return newPageModel(namesList, newMap, 2, false), nil
+			}
+			if newPage == 3 {
+				namesList, _, newMap := services.GetSquad(lastChoice)
+				return newPageModel(namesList, newMap, 3, false), nil
 			}
 
 		}
@@ -136,7 +166,9 @@ func (m model) View() string {
 		for _, v := range m.allChoices {
 			s += v
 			s += "\n"
+
 		}
+		s += "\nPress q to quit or b to go back\n"
 
 	} else {
 		s = "Select from below: \n\n"
@@ -156,7 +188,12 @@ func (m model) View() string {
 			}
 
 		}
-		s += "\nPress q to quit.\n"
+		if m.page == 0 {
+			s += "\nPress q to quit\n"
+		} else {
+			s += "\nPress q to quit or b to go back\n"
+		}
+
 	}
 	return s
 }
